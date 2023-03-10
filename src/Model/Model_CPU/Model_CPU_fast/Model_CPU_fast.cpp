@@ -99,22 +99,18 @@ void Model_CPU_fast
                b_type raccz_i = b_type::load_unaligned(&accelerationsz[i]);
 
         // calculate force
-		for (int j = 0; j < n_particles; j+=b_type::size)
+		for (int j = 0; j < n_particles; j++)
 		{
 			 // load registers body j
-         	const b_type rposx_j = b_type::load_unaligned(&particles.x[j]);
-         	const b_type rposy_j = b_type::load_unaligned(&particles.y[j]);
-         	const b_type rposz_j = b_type::load_unaligned(&particles.z[j]);
-
-			
-			const b_type diffx = rposx_j - rposx_i;
-			const b_type diffy = rposy_j - rposy_i;
-			const b_type diffz = rposz_j - rposz_i;
+         	
+			const b_type diffx = xs::broadcast(particles.x[j]) - rposx_i;
+			const b_type diffy = xs::broadcast(particles.y[j]) - rposy_i;
+			const b_type diffz = xs::broadcast(particles.z[j]) - rposz_i;
 
 			b_type dij = diffx * diffx + diffy * diffy + diffz * diffz;
-
 			const auto comp = xs::lt(dij, b_type(1.0f));
 			dij = xs::select(comp, b_type(10.0f), b_type(10.0f) / xs::pow(dij, b_type(3.0f/2.0f)));
+
 			/*if (dij < 1.0)
 			{
 				dij = 10.0;
@@ -124,7 +120,7 @@ void Model_CPU_fast
 				dij = std::sqrt(dij);
 				dij = 10.0 / (dij * dij * dij);
 			}*/
-			// update accelaration on i
+
 			raccx_i += diffx * dij * initstate.masses[j];
 			raccy_i += diffy * dij * initstate.masses[j];
 			raccz_i += diffz * dij * initstate.masses[j];
