@@ -69,9 +69,7 @@ void Model_CPU_fast
     auto& particlesx = particles.x;
     auto& particlesy = particles.y;
     auto& particlesz = particles.z;
-    
-    #pragma omp parallel for schedule(dynamic, 100)  reduction(vec_float_plus \
-                                  : velocitiesx, velocitiesy, velocitiesz, particlesx, particlesy, particlesz)
+        #pragma omp parallel for schedule(static)  shared(velocitiesx, velocitiesy, velocitiesz, particlesx, particlesy, particlesz)
 	//#pragma omp for simd
 	for (int i = 0; i < n_particles; i++)
 	{
@@ -144,7 +142,7 @@ void Model_CPU_fast
     auto& particlesy = particles.y;
     auto& particlesz = particles.z;
 	#pragma omp parallel for
-	for (int i = 0; i < n_particles; i++)
+	for (int i = 0; i < n_particles; i+=b_type::size)
 	{
 		b_type rposx_i = b_type::load_unaligned(&particlesx[i]);
         b_type rposy_i = b_type::load_unaligned(&particlesy[i]);
