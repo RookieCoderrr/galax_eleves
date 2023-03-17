@@ -109,7 +109,8 @@ void Model_CPU_fast
 
 			b_type dij = diffx * diffx + diffy * diffy + diffz * diffz;
 			const auto comp = xs::lt(dij, b_type(1.0f));
-			dij = xs::select(comp, b_type(10.0f), b_type(10.0f) / xs::pow(dij, b_type(3.0f/2.0f)));
+			//dij = xs::select(comp, b_type(10.0f), b_type(10.0f) / xs::pow(dij, b_type(3.0f/2.0f)));
+			dij = xs::select(comp, b_type(10.0f), b_type(10.0f) * xs::rsqrt((dij * dij * dij)));
 
 			/*if (dij < 1.0)
 			{
