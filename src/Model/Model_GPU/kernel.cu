@@ -40,6 +40,9 @@ __global__ void compute_acc(float3 * positionsGPU, float3 * velocitiesGPU, float
 {
 	unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
 	accelerationsGPU[i] = make_float3(0, 0, 0);
+	if (i >= n_particles) {
+		return;
+	}
 	for (int j = 0; j < n_particles; j++)
 	{
 		if(i != j)
@@ -67,6 +70,7 @@ __global__ void compute_acc(float3 * positionsGPU, float3 * velocitiesGPU, float
 __global__ void maj_pos(float3 * positionsGPU, float3 * velocitiesGPU, float3 * accelerationsGPU)
 {
 	unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+	
 	velocitiesGPU[i] = add(velocitiesGPU[i], mul(accelerationsGPU[i], 2.0f));
 	positionsGPU[i] = add(positionsGPU[i], mul(velocitiesGPU[i], 0.1f));
 }
